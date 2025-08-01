@@ -1,0 +1,9 @@
+.{
+    .name = .game,
+    .version = "0.0.1",
+    .fingerprint = 0x232b318c3691b33f,
+    .dependencies = .{
+        .raylib = .{ .path = "raylib" },
+    },
+    .paths = .{ "build.zig", "src" },
+}
