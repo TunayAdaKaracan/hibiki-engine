@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "raylib/raylib.h"
+#include <raylib.h>
 
 typedef int32_t UnknownSizeInt;
 
