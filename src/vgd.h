@@ -2,6 +2,15 @@
 #include <stdint.h>
 #include <raylib.h>
 
+// https://projectarrhythmia.wiki.gg/wiki/VGD_format
+// https://projectarrhythmia.wiki.gg/wiki/VGP_format
+// https://projectarrhythmia.wiki.gg/wiki/VGT_format
+
+// TODO: Replace UnknownSizeInt with correct data types
+// TODO?: Possibly names should be replaced.
+// TODO: Clean out all editor data after confirming they are not needed for playing levels \
+//  Possibly keep some of them for level editor (?)
+
 typedef int32_t UnknownSizeInt;
 
 // Enums
@@ -82,8 +91,90 @@ typedef enum {
     PT_Misc3
 } PrefabType;
 
-// Game Objects
+// Keyframes
+typedef struct {
+    float t;
+    EasingType ct;
+    RandomizationType r;
+    Vector3 er;
+    Vector2 ev;
+} MovementKeyframe;
 
+typedef MovementKeyframe ScaleKeyframe;
+
+typedef struct {
+    float t;
+    EasingType ct;
+    RandomizationType r;
+    Vector3 er;
+    float ev;
+} RotationKeyframe;
+
+typedef struct {
+    float t;
+    EasingType ct;
+    Vector3 ev;
+} ColorKeyframe;
+
+typedef struct {
+    float t;
+    EasingType ct;
+    union {
+        float* ev;
+        char* theme;
+    } data;
+} EventKeyframe;
+
+// Game Objects
+typedef struct {
+    char *id;
+    struct {
+        uint8_t s, so;
+    } s;
+    UnknownSizeInt c;
+    struct {
+        Vector2 p, s;
+        float r;
+    } t;
+
+    struct {
+        float l, ld;
+        bool ap, as, ar;
+        Vector2 p, s;
+        float r;
+    } an;
+} ParallaxObject;
+
+typedef struct {
+    char *id, *pre_id, *pre_iid, *n;
+    ObjectType t;
+    float st;
+    AutokillType ak_t;
+    float ak_o;
+    GradientType gt;
+    uint8_t s, so;
+    UnknownSizeInt d;
+    char *p_id;
+    uint8_t p_t; // 8 bits. MSB 5 is unused. Rest's MSB to LSB in respective order Position, Scale, Rotation
+    Vector3 p_o;
+    // Object Ed Data Seemed Useless
+    Vector2 o;
+
+    // Flattened
+    MovementKeyframe *movement_keyframes;
+    ScaleKeyframe *scale_keyframes;
+    RotationKeyframe *rotation_keyframes;
+    ColorKeyframe *color_keyframes;
+} GameObject;
+
+typedef struct {
+    char *id, *pid;
+    // ed data not included
+
+    // Flattened
+    Vector2 position, scale;
+    float rotation;
+} PrefabObject; // PrefabInstance
 
 // .VGP & .VGT
 typedef struct {
@@ -92,6 +183,11 @@ typedef struct {
     float o;
     // TODO: Objects
 } PrefabData;
+
+typedef struct {
+    char *id;
+    PrefabData data;
+} PrefabDataWithID;
 
 typedef struct {
     char *name;
@@ -104,7 +200,12 @@ typedef struct {
     char *bg[9];
 } ThemeData;
 
-// Other stuff
+typedef struct {
+    char *id;
+    ThemeData data;
+} ThemeDataWithID;
+
+// Level Related
 typedef struct {
     ActivationTrigger event_trigger;
     Vector2 event_trigger_time;
@@ -118,8 +219,6 @@ typedef struct {
     float t;
     Vector2 p;
 } CheckPoint;
-
-
 
 // Editor Data
 typedef struct {
@@ -162,13 +261,6 @@ typedef struct {
 } EditorData;
 
 typedef struct {
-    bool expanded;
-    bool active;
-    char *prefab;
-    char **keycodes;
-} EditorPrefabSpawnData;
-
-typedef struct {
     char *id, *n, *d;
     UnknownSizeInt c;
     float t;
@@ -178,9 +270,16 @@ typedef struct {
 typedef struct {
     EditorData editor;
     Trigger *triggers;
-    EditorPrefabSpawnData editor_prefab_spawn[6];
-    // parallax_settings
+    // editor_prefab_spawn is deemed unneeded
+    struct {
+        UnknownSizeInt d, c;
+        ParallaxObject *o;
+    } parallax_settings[5];
     CheckPoint *checkpoints;
-    // ...
+    GameObject *objects;
+    PrefabObject *prefab_objects;
+    PrefabDataWithID *prefabs;
+    ThemeDataWithID *themes;
     Marker *markers;
+    EventKeyframe **events;
 } LevelData;

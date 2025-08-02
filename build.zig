@@ -21,7 +21,7 @@ pub fn build(b: *std.Build) void {
     // I am still creating many aspects of the engine. Starting with simple stuff like arrays
     // and actual structures containing level data and beatmap data. Up until everything can be parsed, raylib will not be used.
     // Hence no need to actually compile and link raylib. This will be removed once engine is ready to work with a graphics library.
-    const link_raylib = b.option(bool, "raylib", "Link raylib to the executable? Defaults to truee") orelse true;
+    const link_raylib = b.option(bool, "raylib", "Link raylib to the executable? Defaults to true") orelse true;
     const cdb = b.option(bool, "cdb", "Compile compile_commands.zig") orelse false;
     const exe = b.addExecutable(.{
         .name = "game",
